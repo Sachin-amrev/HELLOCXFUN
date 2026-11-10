@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Call</title>
+    <style>
+        :root {
+            --neon-green: #00ff00;
+            --dark-bg: #000000;
+            --card-bg: #111;
+            --text-color: #fff;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--dark-bg);
+            color: var(--text-color);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 20px auto;
+            border: 1px solid #333;
+            border-radius: 15px;
+            box-shadow: 0 0 15px rgba(0, 255, 0, 0.1);
+            padding: 20px;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 5px;
+            text-shadow: 0 0 10px var(--neon-green);
+        }
+
+        .subtitle {
+            color: #ccc;
+            margin-bottom: 30px;
+            font-size: 1.1rem;
+        }
+
+        .telegram-link {
+            display: inline-block;
+            margin: -10px 0 25px;
+            padding: 10px 20px;
+            border: 1px solid var(--neon-green);
+            border-radius: 20px;
+            color: var(--neon-green);
+            font-weight: bold;
+            text-decoration: none;
+            transition: background-color 0.2s, color 0.2s;
+        }
+
+        .telegram-link:hover {
+            background-color: var(--neon-green);
+            color: black;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 20px;
+            padding-bottom: 20px;
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--neon-green);
+            border-radius: 10px;
+            padding: 10px;
+            box-shadow: 0 0 5px var(--neon-green);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: transform 0.2s;
+            position: relative;
+        }
+
+        .card:hover {
+            transform: scale(1.02);
+            box-shadow: 0 0 15px var(--neon-green);
+        }
+
+        .image-container {
+            position: relative;
+            width: 100%;
+            border-radius: 8px;
+            overflow: hidden;
+            aspect-ratio: 4/5;
+        }
+
+        .image-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .online-dot {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 12px;
+            height: 12px;
+            background-color: var(--neon-green);
+            border-radius: 50%;
+            box-shadow: 0 0 10px var(--neon-green);
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                opacity: 1;
+                transform: scale(1);
+            }
+
+            50% {
+                opacity: 0.5;
+                transform: scale(1.2);
+            }
+
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .name {
+            margin-top: 10px;
+            font-weight: bold;
+            font-size: 1rem;
+        }
+
+        .btn-call {
+            margin-top: 10px;
+            padding: 8px 20px;
+            background: transparent;
+            border: 1px solid var(--neon-green);
+            color: var(--neon-green);
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.2s;
+            width: 80%;
+        }
+
+        .btn-call:hover {
+            background-color: var(--neon-green);
+            color: black;
+            transform: scale(1.05);
+            box-shadow: 0 0 10px var(--neon-green);
+        }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal {
+            background: #111;
+            border: 2px solid var(--neon-green);
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 0 30px rgba(0, 255, 0, 0.2);
+        }
+
+        .modal h2 {
+            margin-top: 0;
+            color: #fff;
+        }
+
+        .modal p {
+            color: #ccc;
+            margin: 20px 0;
+            line-height: 1.5;
+        }
+
+        .btn-allow {
+            background-color: var(--neon-green);
+            color: black;
+            border: none;
+            padding: 12px 30px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border-radius: 25px;
+            cursor: pointer;
+            box-shadow: 0 0 15px var(--neon-green);
+            transition: transform 0.2s;
+        }
+
+        .btn-allow:hover {
+            transform: scale(1.05);
+        }
+
+        .btn-close {
+            margin-left: 10px;
+            padding: 12px 20px;
+            border: 1px solid #aaa;
+            border-radius: 25px;
+            background: transparent;
+            color: #fff;
+            cursor: pointer;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <h1>Video Call</h1>
+        <div class="subtitle">Choose someone to connect with live. Demo only: no personal data is collected or sent.</div>
+        <a class="telegram-link" href="https://t.me/Sahildada_bot" target="_blank" rel="noopener noreferrer">
+            Chat with us on Telegram
+        </a>
+        <div class="grid" id="profileGrid">
+            <!-- Profiles generated by JS -->
+        </div>
+    </div>
+
+    <div class="modal-overlay hidden" id="permissionModal">
+        <div class="modal">
+            <h2>Educational Demo</h2>
+            <p id="modalMessage">This demo does not access your camera, microphone, IP address, or location, and does not capture or send screenshots.</p>
+            <button class="btn-allow" onclick="runDemo()">Simulate Sending Sample</button>
+            <button class="btn-close" onclick="closeModal()">Close</button>
+        </div>
+    </div>
+
+    <script>
+        const names = [
+            { name: "Mahira", flag: "🇮🇳", image: "https://i.ibb.co/YF0BMt1w/img5.jpg" },
+            { name: "Laiba", flag: "🇮🇳", image: "https://i.ibb.co/RkmmZ073/img4.jpg" },
+            { name: "Kiran", flag: "🇮🇳", image: "https://i.ibb.co/bgJDD6nP/img10.jpg" },
+            { name: "Hina", flag: "🇵🇰", image: "https://i.ibb.co/LzLzbNZQ/img11.jpg" },
+            { name: "Zara", flag: "🇮🇳", image: "https://i.ibb.co/fGMj63pG/iamage17.jpg" },
+            { name: "Priya", flag: "🇮🇳", image: "https://i.ibb.co/CKXF9kqZ/iamge2.jpg" },
+            { name: "Ayesha", flag: "🇮🇳", image: "https://i.ibb.co/JVH8t1w/imag7.jpg" },
+            { name: "Fatima", flag: "🇵🇰", image: "https://i.ibb.co/5x2jLKNR/h5.jpg" },
+            { name: "Tanisha", flag: "🇮🇳", image: "https://i.ibb.co/Qj3qxfR6/imag9.jpg" },
+            { name: "Anaya", flag: "🇮🇳", image: "https://i.ibb.co/VWRdZTDZ/img9.jpg" },
+            { name: "Sana", flag: "🇮🇳", image: "https://i.ibb.co/B5gCHJBL/image4.jpg" },
+            { name: "Mehak", flag: "🇵🇰", image: "https://i.ibb.co/KnXcVZ2/img1.jpg" },
+            { name: "Riya", flag: "🇮🇳", image: "https://i.ibb.co/gLYq6YqQ/image10.jpg" },
+            { name: "Kavya", flag: "🇮🇳", image: "https://i.ibb.co/G3TCD9mf/image11.jpg" },
+            { name: "Neha", flag: "🇮🇳", image: "https://i.ibb.co/tTBL0HvN/image12.jpg" },
+            { name: "Simran", flag: "🇵🇰", image: "https://i.ibb.co/GZbWPfg/h4.jpg" },
+            { name: "Pooja", flag: "🇮🇳", image: "https://i.ibb.co/N2vDKvnx/image14.jpg" },
+            { name: "Amara", flag: "🇵🇰", image: "https://i.ibb.co/hx39N2bQ/h6.jpg" },
+            { name: "Ishita", flag: "🇵🇰", image: "https://i.ibb.co/ccNfM0X3/h7.jpg" },
+            { name: "Zoya", flag: "🇵🇰", image: "https://i.ibb.co/YFW5ZK8R/img8.jpg" },
+            { name: "Diya", flag: "🇮🇳", image: "https://i.ibb.co/d4FcqQRY/images-1.jpg" },
+            { name: "Mariam", flag: "🇵🇰", image: "https://i.ibb.co/fVLrh5WL/h3.jpg" },
+            { name: "Aisha", flag: "🇵🇰", image: "https://i.ibb.co/m5PKGS3J/image6.jpg" },
+            { name: "Nida", flag: "🇵🇰", image: "https://i.ibb.co/8LBRRW6v/h2.jpg" },
+            { name: "Farida", flag: "🇵🇰", image: "https://i.ibb.co/y3RwB9f/img7.jpg" }
+        ];
+
+        const grid = document.getElementById('profileGrid');
+
+        names.forEach((person, index) => {
+            const fallbackUrl = `https://loremflickr.com/200/250/indian,woman,model,fashion?lock=${index}`;
+            // Use provided image or fallback if none provided (though all have one now)
+            const primaryUrl = person.image || fallbackUrl;
+
+            const card = document.createElement('div');
+            card.className = 'card';
+            // Added onerror to switch to fallbackUrl if primaryUrl fails (which is likely for ibb.co landing pages)
+            card.innerHTML = `
+                <div class="image-container">
+                    <img src="${primaryUrl}" 
+                         alt="${person.name}" 
+                         onerror="this.onerror=null; this.src='${fallbackUrl}';">
+                    <div class="online-dot"></div>
+                </div>
+                <div class="name">${person.name}</div>
+                <button class="btn-call" onclick="startCall('${person.name}', this.closest('.card').querySelector('img').src)">Call</button>
+            `;
+            grid.appendChild(card);
+        });
+
+        function runDemo() {
+            const message = document.getElementById('modalMessage');
+            const button = document.querySelector('#permissionModal .btn-allow');
+            button.disabled = true;
+            message.textContent = 'DEMO SIMULATION: Sending fictional sample data... Nothing is being transmitted.';
+
+            window.setTimeout(() => {
+                message.textContent =
+                    'DEMO COMPLETE — nothing was sent to Telegram. Fictional sample only: IP 203.0.113.42; location 28.6139, 77.2090. No real data was collected and no screenshot was taken.';
+                button.disabled = false;
+            }, 1200);
+        }
+
+        function closeModal() {
+            document.getElementById('permissionModal').classList.add('hidden');
+        }
+
+        function startCall(name, imgUrl) {
+            const modal = document.getElementById('permissionModal');
+            // Update modal to show who is being called
+            const modalImgContainer = document.getElementById('modal-img-container') || document.createElement('div');
+            modalImgContainer.id = 'modal-img-container';
+            modalImgContainer.style.marginBottom = '15px';
+            modalImgContainer.innerHTML = `<img src="${imgUrl}" style="width:100px; height:100px; border-radius:50%; border: 2px solid #00ff00; object-fit: cover;">`;
+
+            const existingImg = modal.querySelector('#modal-img-container');
+            if (existingImg) {
+                existingImg.replaceWith(modalImgContainer);
+            } else {
+                modal.querySelector('h2').after(modalImgContainer);
+            }
+
+            modal.querySelector('h2').innerText = `Calling ${name}...`;
+            modal.querySelector('#modalMessage').innerText =
+                'Educational demo only. No personal information, camera, microphone, location, or screenshot will be accessed or sent.';
+
+            modal.classList.remove('hidden');
+        }
+    </script>
+</body>
+
+</html>
